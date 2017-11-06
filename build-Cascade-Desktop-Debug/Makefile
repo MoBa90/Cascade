@@ -110,7 +110,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
-		../Cascade/Cascade.pro ../Cascade/classifier.h ../Cascade/main.cpp \
+		../Cascade/Cascade.pro ../Cascade/classifier.h \
+		../Cascade/node.h ../Cascade/main.cpp \
 		../Cascade/classifier.cpp
 QMAKE_TARGET  = caffe_test
 DESTDIR       = #avoid trailing-slash linebreak
@@ -281,7 +282,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Cascade/classifier.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Cascade/classifier.h ../Cascade/node.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../Cascade/main.cpp ../Cascade/classifier.cpp $(DISTDIR)/
 
 
@@ -321,10 +322,8 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../Cascade/main.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Cascade/main.cpp
-
-classifier.o: ../Cascade/classifier.cpp ../../../caffe/build_caffe/install/include/caffe/caffe.hpp \
+main.o: ../Cascade/main.cpp ../../../caffe/build_caffe/caffe_config.h \
+		../../../caffe/build_caffe/install/include/caffe/caffe.hpp \
 		../../../caffe/build_caffe/install/include/caffe/blob.hpp \
 		../../../caffe/build_caffe/install/include/caffe/common.hpp \
 		../../../caffe/build_caffe/install/include/caffe/util/device_alternate.hpp \
@@ -409,7 +408,100 @@ classifier.o: ../Cascade/classifier.cpp ../../../caffe/build_caffe/install/inclu
 		../../../caffe/build_caffe/install/include/caffe/util/nccl.hpp \
 		../../../caffe/build_caffe/install/include/caffe/util/io.hpp \
 		../../../caffe/build_caffe/install/include/caffe/util/format.hpp \
-		../../../caffe/build_caffe/install/include/caffe/util/upgrade_proto.hpp
+		../../../caffe/build_caffe/install/include/caffe/util/upgrade_proto.hpp \
+		../Cascade/classifier.h \
+		../Cascade/node.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Cascade/main.cpp
+
+classifier.o: ../Cascade/classifier.cpp /usr/local/cuda-9.0/include/cuda_runtime.h \
+		/usr/local/cuda-9.0/include/host_config.h \
+		/usr/local/cuda-9.0/include/crt/host_config.h \
+		/usr/local/cuda-9.0/include/builtin_types.h \
+		/usr/local/cuda-9.0/include/device_types.h \
+		/usr/local/cuda-9.0/include/host_defines.h \
+		/usr/local/cuda-9.0/include/crt/host_defines.h \
+		/usr/local/cuda-9.0/include/driver_types.h \
+		/usr/local/cuda-9.0/include/vector_types.h \
+		/usr/local/cuda-9.0/include/surface_types.h \
+		/usr/local/cuda-9.0/include/texture_types.h \
+		/usr/local/cuda-9.0/include/library_types.h \
+		/usr/local/cuda-9.0/include/channel_descriptor.h \
+		/usr/local/cuda-9.0/include/cuda_runtime_api.h \
+		/usr/local/cuda-9.0/include/cuda_device_runtime_api.h \
+		/usr/local/cuda-9.0/include/driver_functions.h \
+		/usr/local/cuda-9.0/include/vector_functions.h \
+		/usr/local/cuda-9.0/include/vector_functions.hpp \
+		/usr/local/cuda-9.0/include/device_functions.h \
+		/usr/local/cuda-9.0/include/crt/device_functions.h \
+		/usr/local/cuda-9.0/include/crt/device_functions.hpp \
+		/usr/local/cuda-9.0/include/device_atomic_functions.h \
+		/usr/local/cuda-9.0/include/device_atomic_functions.hpp \
+		/usr/local/cuda-9.0/include/crt/device_double_functions.h \
+		/usr/local/cuda-9.0/include/crt/device_double_functions.hpp \
+		/usr/local/cuda-9.0/include/sm_20_atomic_functions.h \
+		/usr/local/cuda-9.0/include/sm_20_atomic_functions.hpp \
+		/usr/local/cuda-9.0/include/sm_32_atomic_functions.h \
+		/usr/local/cuda-9.0/include/sm_32_atomic_functions.hpp \
+		/usr/local/cuda-9.0/include/sm_35_atomic_functions.h \
+		/usr/local/cuda-9.0/include/sm_60_atomic_functions.h \
+		/usr/local/cuda-9.0/include/sm_60_atomic_functions.hpp \
+		/usr/local/cuda-9.0/include/sm_20_intrinsics.h \
+		/usr/local/cuda-9.0/include/sm_20_intrinsics.hpp \
+		/usr/local/cuda-9.0/include/sm_30_intrinsics.h \
+		/usr/local/cuda-9.0/include/sm_30_intrinsics.hpp \
+		/usr/local/cuda-9.0/include/sm_32_intrinsics.h \
+		/usr/local/cuda-9.0/include/sm_32_intrinsics.hpp \
+		/usr/local/cuda-9.0/include/sm_35_intrinsics.h \
+		/usr/local/cuda-9.0/include/sm_61_intrinsics.h \
+		/usr/local/cuda-9.0/include/sm_61_intrinsics.hpp \
+		/usr/local/cuda-9.0/include/crt/sm_70_rt.h \
+		/usr/local/cuda-9.0/include/crt/sm_70_rt.hpp \
+		/usr/local/cuda-9.0/include/surface_functions.h \
+		/usr/local/cuda-9.0/include/cuda_surface_types.h \
+		/usr/local/cuda-9.0/include/texture_fetch_functions.h \
+		/usr/local/cuda-9.0/include/cuda_texture_types.h \
+		/usr/local/cuda-9.0/include/texture_indirect_functions.h \
+		/usr/local/cuda-9.0/include/surface_indirect_functions.h \
+		/usr/local/cuda-9.0/include/common_functions.h \
+		/usr/local/cuda-9.0/include/crt/common_functions.h \
+		/usr/local/cuda-9.0/include/crt/math_functions.h \
+		/usr/local/cuda-9.0/include/crt/func_macro.h \
+		/usr/local/cuda-9.0/include/crt/math_functions.hpp \
+		/usr/local/cuda-9.0/include/math_constants.h \
+		/usr/local/cuda-9.0/include/device_launch_parameters.h \
+		../../../caffe/build_caffe/caffe_config.h \
+		../../../caffe/build_caffe/install/include/caffe/caffe.hpp \
+		../../../caffe/build_caffe/install/include/caffe/blob.hpp \
+		../../../caffe/build_caffe/install/include/caffe/common.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/device_alternate.hpp \
+		/usr/local/cuda-9.0/include/cublas_v2.h \
+		/usr/local/cuda-9.0/include/cublas_api.h \
+		/usr/local/cuda-9.0/include/cuComplex.h \
+		/usr/local/cuda-9.0/include/cuda_fp16.h \
+		/usr/local/cuda-9.0/include/cuda_fp16.hpp \
+		/usr/local/cuda-9.0/include/cuda.h \
+		/usr/local/cuda-9.0/include/curand.h \
+		../../../caffe/build_caffe/install/include/caffe/util/cudnn.hpp \
+		../../../caffe/build_caffe/install/include/caffe/proto/caffe.pb.h \
+		../../../caffe/build_caffe/install/include/caffe/syncedmem.hpp \
+		../../../caffe/build_caffe/install/include/caffe/filler.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/math_functions.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/mkl_alternate.hpp \
+		../../../caffe/build_caffe/install/include/caffe/layer.hpp \
+		../../../caffe/build_caffe/install/include/caffe/layer_factory.hpp \
+		../../../caffe/build_caffe/install/include/caffe/net.hpp \
+		../../../caffe/build_caffe/install/include/caffe/parallel.hpp \
+		../../../caffe/build_caffe/install/include/caffe/internal_thread.hpp \
+		../../../caffe/build_caffe/install/include/caffe/solver.hpp \
+		../../../caffe/build_caffe/install/include/caffe/solver_factory.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/benchmark.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/blocking_queue.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/nccl.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/io.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/format.hpp \
+		../../../caffe/build_caffe/install/include/caffe/util/upgrade_proto.hpp \
+		../Cascade/classifier.h \
+		../Cascade/node.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o classifier.o ../Cascade/classifier.cpp
 
 ####### Install

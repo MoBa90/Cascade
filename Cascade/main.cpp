@@ -12,6 +12,8 @@
 #include <caffe/caffe.hpp>
 
 #include <classifier.h>
+#include "node.h"
+
 
 using std::string;
 
@@ -35,14 +37,30 @@ int main(int argc, char *argv[])
 
     cv::Mat img = cv::imread(file, -1);
     CHECK(!img.empty()) << "Unable to decode image " << file;
-    std::vector<Prediction> predictions = classifier.Classify(img);
+    
 
-    /* Print the top N predictions. */
-    for (size_t i = 0; i < predictions.size(); ++i) {
-      Prediction p = predictions[i];
-      std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
-                << p.first << "\"" << std::endl;
+
+    std::vector<Node> nodes;
+    Node n1;
+    n1.patch = img;
+    nodes.push_back(n1);
+
+    std::vector<Node> results = classifier.Classify(nodes);
+
+
+
+    for (int j = 0; j < results.size(); j++){
+        Node tmpNode = results[j];
+        /* Print the top N predictions. */
+        for (size_t i = 0; i < tmpNode.predictions.size(); ++i) {
+          Prediction p = tmpNode.predictions[i];
+          std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
+                    << p.first << "\"" << std::endl;
+        }
     }
+
+    std::cout << "hello" << std::endl;
+
 
     return a.exec();
 }

@@ -63,4 +63,5 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 #/media/mohamad/DATA/Opencv/build/lib
 
 HEADERS += \
-    classifier.h
+    classifier.h \
+    node.h

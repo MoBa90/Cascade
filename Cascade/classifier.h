@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include "node.h"
 
 using std::string;
 
@@ -21,7 +22,7 @@ class Classifier {
              const string& mean_file,
              const string& label_file);
 
-  std::vector<Prediction> Classify(const cv::Mat& img, int N = 5);
+  std::vector<Node> Classify(std::vector<Node>& img, int N = 5);
 
  private:
   void SetMean(const string& mean_file);
