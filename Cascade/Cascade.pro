@@ -12,7 +12,8 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    classifier.cpp
+    classifier.cpp \
+    cascade.cpp
 
 
 
@@ -63,4 +64,6 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 #/media/mohamad/DATA/Opencv/build/lib
 
 HEADERS += \
-    classifier.h
+    classifier.h \
+    node.h \
+    cascade.h

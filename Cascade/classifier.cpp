@@ -24,6 +24,7 @@
 
 
 using std::string;
+using namespace caffe;
 
 
 Classifier::Classifier(const string& model_file,
@@ -50,7 +51,7 @@ Classifier::Classifier(const string& model_file,
   input_geometry_ = cv::Size(input_layer->width(), input_layer->height());
 
   /* Load the binaryproto mean file. */
-  SetMean(mean_file);
+//  SetMean(mean_file);
 
   /* Load labels. */
   std::ifstream labels(label_file.c_str());
@@ -83,50 +84,58 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 }
 
 /* Return the top N predictions. */
-std::vector<Prediction> Classifier::Classify(const cv::Mat& img, int N) {
-  std::vector<float> output = Predict(img);
-
-  N = std::min<int>(labels_.size(), N);
-  std::vector<int> maxN = Argmax(output, N);
-  std::vector<Prediction> predictions;
-  for (int i = 0; i < N; ++i) {
-    int idx = maxN[i];
-    predictions.push_back(std::make_pair(labels_[idx], output[idx]));
+std::vector<Node> Classifier::Classify(std::vector<Node>& imgsNode, int N) {
+    
+  
+  for(int i = 0; i< imgsNode.size(); i++){
+      
+      
+      std::vector<float> output = Predict(imgsNode[i].patch);
+    
+      N = std::min<int>(labels_.size(), N);
+      std::vector<int> maxN = Argmax(output, N);
+      std::vector<Prediction> predictions;
+      for (int i = 0; i < N; ++i) {
+        int idx = maxN[i];
+        predictions.push_back(std::make_pair(labels_[idx], output[idx]));
+      }
+      imgsNode[i].predictions = predictions;
   }
-
-  return predictions;
+  
+  
+  return imgsNode;
 }
 
-/* Load the mean file in binaryproto format. */
-void Classifier::SetMean(const string& mean_file) {
-  BlobProto blob_proto;
-  ReadProtoFromBinaryFileOrDie(mean_file.c_str(), &blob_proto);
+///* Load the mean file in binaryproto format. */
+//void Classifier::SetMean(const string& mean_file) {
+//  BlobProto blob_proto;
+//  ReadProtoFromBinaryFileOrDie(mean_file.c_str(), &blob_proto);
 
-  /* Convert from BlobProto to Blob<float> */
-  Blob<float> mean_blob;
-  mean_blob.FromProto(blob_proto);
-  CHECK_EQ(mean_blob.channels(), num_channels_)
-    << "Number of channels of mean file doesn't match input layer.";
+//  /* Convert from BlobProto to Blob<float> */
+//  Blob<float> mean_blob;
+//  mean_blob.FromProto(blob_proto);
+//  CHECK_EQ(mean_blob.channels(), num_channels_)
+//    << "Number of channels of mean file doesn't match input layer.";
 
-  /* The format of the mean file is planar 32-bit float BGR or grayscale. */
-  std::vector<cv::Mat> channels;
-  float* data = mean_blob.mutable_cpu_data();
-  for (int i = 0; i < num_channels_; ++i) {
-    /* Extract an individual channel. */
-    cv::Mat channel(mean_blob.height(), mean_blob.width(), CV_32FC1, data);
-    channels.push_back(channel);
-    data += mean_blob.height() * mean_blob.width();
-  }
+//  /* The format of the mean file is planar 32-bit float BGR or grayscale. */
+//  std::vector<cv::Mat> channels;
+//  float* data = mean_blob.mutable_cpu_data();
+//  for (int i = 0; i < num_channels_; ++i) {
+//    /* Extract an individual channel. */
+//    cv::Mat channel(mean_blob.height(), mean_blob.width(), CV_32FC1, data);
+//    channels.push_back(channel);
+//    data += mean_blob.height() * mean_blob.width();
+//  }
 
-  /* Merge the separate channels into a single image. */
-  cv::Mat mean;
-  cv::merge(channels, mean);
+//  /* Merge the separate channels into a single image. */
+//  cv::Mat mean;
+//  cv::merge(channels, mean);
 
-  /* Compute the global mean pixel value and create a mean image
-   * filled with this value. */
-  cv::Scalar channel_mean = cv::mean(mean);
-  mean_ = cv::Mat(input_geometry_, mean.type(), channel_mean);
-}
+//  /* Compute the global mean pixel value and create a mean image
+//   * filled with this value. */
+//  cv::Scalar channel_mean = cv::mean(mean);
+//  mean_ = cv::Mat(input_geometry_, mean.type(), channel_mean);
+//}
 
 std::vector<float> Classifier::Predict(const cv::Mat& img) {
   Blob<float>* input_layer = net_->input_blobs()[0];
@@ -194,54 +203,19 @@ void Classifier::Preprocess(const cv::Mat& img,
   else
     sample_resized.convertTo(sample_float, CV_32FC1);
 
-  cv::Mat sample_normalized;
-  cv::subtract(sample_float, mean_, sample_normalized);
+//  cv::Mat sample_normalized;
+//  cv::subtract(sample_float, mean_, sample_normalized);
 
   /* This operation will write the separate BGR planes directly to the
    * input layer of the network because it is wrapped by the cv::Mat
    * objects in input_channels. */
-  cv::split(sample_normalized, *input_channels);
+  cv::split(sample_float, *input_channels);
 
   CHECK(reinterpret_cast<float*>(input_channels->at(0).data)
         == net_->input_blobs()[0]->cpu_data())
     << "Input channels are not wrapping the input layer of the network.";
 }
 
-//int main(int argc, char** argv) {
-//  if (argc != 6) {
-//    std::cerr << "Usage: " << argv[0]
-//              << " deploy.prototxt network.caffemodel"
-//              << " mean.binaryproto labels.txt img.jpg" << std::endl;
-//    return 1;
-//  }
 
-//  ::google::InitGoogleLogging(argv[0]);
-
-//  string model_file   = argv[1];
-//  string trained_file = argv[2];
-//  string mean_file    = argv[3];
-//  string label_file   = argv[4];
-//  Classifier classifier(model_file, trained_file, mean_file, label_file);
-
-//  string file = argv[5];
-
-//  std::cout << "---------- Prediction for "
-//            << file << " ----------" << std::endl;
-
-//  cv::Mat img = cv::imread(file, -1);
-//  CHECK(!img.empty()) << "Unable to decode image " << file;
-//  std::vector<Prediction> predictions = classifier.Classify(img);
-
-//  /* Print the top N predictions. */
-//  for (size_t i = 0; i < predictions.size(); ++i) {
-//    Prediction p = predictions[i];
-//    std::cout << std::fixed << std::setprecision(4) << p.second << " - \""
-//              << p.first << "\"" << std::endl;
-//  }
-//}
-//#else
-//int main(int argc, char** argv) {
-//  LOG(FATAL) << "This example requires OpenCV; compile with USE_OPENCV.";
-//}
 
 

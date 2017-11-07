@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include "node.h"
 
 using std::string;
 
@@ -16,12 +17,13 @@ typedef std::pair<string, float> Prediction;
 
 class Classifier {
  public:
+  Classifier() = default;
   Classifier(const string& model_file,
              const string& trained_file,
              const string& mean_file,
              const string& label_file);
 
-  std::vector<Prediction> Classify(const cv::Mat& img, int N = 5);
+  std::vector<Node> Classify(std::vector<Node>& imgsNode, int N = 5);
 
  private:
   void SetMean(const string& mean_file);
