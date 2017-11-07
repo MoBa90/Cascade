@@ -49,9 +49,11 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = ../Cascade/main.cpp \
-		../Cascade/classifier.cpp 
+		../Cascade/classifier.cpp \
+		../Cascade/cascade.cpp 
 OBJECTS       = main.o \
-		classifier.o
+		classifier.o \
+		cascade.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -111,8 +113,10 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		../Cascade/Cascade.pro ../Cascade/classifier.h \
-		../Cascade/node.h ../Cascade/main.cpp \
-		../Cascade/classifier.cpp
+		../Cascade/node.h \
+		../Cascade/cascade.h ../Cascade/main.cpp \
+		../Cascade/classifier.cpp \
+		../Cascade/cascade.cpp
 QMAKE_TARGET  = caffe_test
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = caffe_test
@@ -282,8 +286,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Cascade/classifier.h ../Cascade/node.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Cascade/main.cpp ../Cascade/classifier.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Cascade/classifier.h ../Cascade/node.h ../Cascade/cascade.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Cascade/main.cpp ../Cascade/classifier.cpp ../Cascade/cascade.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -503,6 +507,9 @@ classifier.o: ../Cascade/classifier.cpp /usr/local/cuda-9.0/include/cuda_runtime
 		../Cascade/classifier.h \
 		../Cascade/node.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o classifier.o ../Cascade/classifier.cpp
+
+cascade.o: ../Cascade/cascade.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o cascade.o ../Cascade/cascade.cpp
 
 ####### Install
 

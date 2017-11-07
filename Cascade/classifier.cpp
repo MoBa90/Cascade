@@ -26,6 +26,7 @@
 using std::string;
 using namespace caffe;
 
+
 Classifier::Classifier(const string& model_file,
                        const string& trained_file,
                        const string& mean_file,
@@ -83,13 +84,13 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 }
 
 /* Return the top N predictions. */
-std::vector<Node> Classifier::Classify(std::vector<Node>& img, int N) {
+std::vector<Node> Classifier::Classify(std::vector<Node>& imgsNode, int N) {
     
   
-  for(int i = 0; i< img.size(); i++){
+  for(int i = 0; i< imgsNode.size(); i++){
       
       
-      std::vector<float> output = Predict(img[i].patch);
+      std::vector<float> output = Predict(imgsNode[i].patch);
     
       N = std::min<int>(labels_.size(), N);
       std::vector<int> maxN = Argmax(output, N);
@@ -98,11 +99,11 @@ std::vector<Node> Classifier::Classify(std::vector<Node>& img, int N) {
         int idx = maxN[i];
         predictions.push_back(std::make_pair(labels_[idx], output[idx]));
       }
-      img[i].predictions = predictions;
+      imgsNode[i].predictions = predictions;
   }
   
   
-  return img;
+  return imgsNode;
 }
 
 ///* Load the mean file in binaryproto format. */
